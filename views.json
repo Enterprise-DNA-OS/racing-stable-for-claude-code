@@ -1,14 +1,38 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Racing Stable for Claude Code: what needs attention, rendered by npm run view",
+    "title": "This week at the stable",
+    "subtitle": "Race clashes, Stable Returns, treatment records, races coming up and who owes",
     "sections": [
-      {
-        "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
-      }
+      { "title": "Needs attention", "note": "The same list as /attention. Rule breaches first.", "sql": "select item, ref, detail from v_attention order by rank, item, ref" },
+      { "title": "Races coming up", "sql": "select ref, horse, race_date, venue, race_no as race, status, acceptances, jockey, coalesce(clash, '') as clash from v_races where race_date >= local_today() and status <> 'scratched' order by race_date, venue" },
+      { "title": "Horses stood down", "note": "Clear days under AR 86, 87, 88, 88A, 88AA, 249 and 255, counted from midnight on the day given.", "sql": "select horse, product, rule, eligible_on from v_treatments where eligible_on > local_today() order by eligible_on" }
+    ]
+  },
+  {
+    "name": "horses",
+    "title": "Where every horse is",
+    "subtitle": "In work, pre-training and spelling, with owners and the next race",
+    "sections": [
+      { "title": "Horses", "sql": "select code, name, sex, age, status, premises_name as premises, since, days_there, shares_percent as shares, next_race, last_update from v_horses where status <> 'left' order by status, name" },
+      { "title": "Stable Returns waiting", "note": "AR 296(2): lodge the amendment immediately when a horse joins, leaves or moves.", "sql": "select ref, horse, moved_local as moved, moved_to, return_standing, hours_to_lodge from v_movements where return_standing in ('pending', 'overdue') order by moved_at" }
+    ]
+  },
+  {
+    "name": "treatments",
+    "title": "Treatment register",
+    "subtitle": "Every medication and treatment in the last 30 days, as AR 104 asks it to be kept",
+    "sections": [
+      { "title": "Last 30 days", "sql": "select ref, horse, given_local as given, kind, product, route, amount, given_by, authorised_by, reason, recorded_local as recorded, record_standing as record from v_treatments where given_at > local_now() - interval '30 days' order by given_at desc" }
+    ]
+  },
+  {
+    "name": "money",
+    "title": "Owner accounts",
+    "subtitle": "What is owed, what is waiting to be billed",
+    "sections": [
+      { "title": "Owing", "sql": "select number, owner, month, dollars(total_cents) as total, dollars(owing_cents) as owing, due_on, days_overdue from v_invoices where owing_cents > 0 order by days_overdue desc" },
+      { "title": "Charges not yet billed", "sql": "select c.ref, h.name as horse, c.on_date, c.kind, c.description, dollars(c.amount_cents) as amount from charges c join horses h on h.id = c.horse_id where c.billed_month is null order by c.on_date" }
     ]
   }
 ]

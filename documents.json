@@ -1,11 +1,34 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
+    "name": "owner-invoice",
+    "title": "Training account",
+    "for_each": "select id, number from invoices order by number",
+    "file": "number",
+    "sections": [
+      { "title": "Invoice", "layout": "record", "sql": "select number, owner, month, issued_on, due_on, dollars(subtotal_cents) as subtotal, dollars(gst_cents) as gst, dollars(total_cents) as total, dollars(owing_cents) as owing from v_invoices where id = $1" },
+      { "title": "Fees and charges by horse", "note": "Each line is your share of the cost, by the percentage you held on the day.", "sql": "select h.name as horse, l.description, l.percent as your_share, dollars(l.amount_cents) as amount, case when l.gst then 'yes' else 'no' end as gst from invoice_lines l join horses h on h.id = l.horse_id where l.invoice_id = $1 order by h.name, l.kind desc, l.description" }
+    ]
+  },
+  {
+    "name": "treatment-record",
+    "title": "Treatment record (AR 104)",
+    "for_each": "select id, name from horses where exists (select 1 from treatments t where t.horse_id = horses.id) order by name",
     "file": "name",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      { "title": "Horse", "layout": "record", "sql": "select code, name, sex, age, status, premises_name as premises from v_horses where id = $1" },
+      { "title": "Medications and treatments, last 2 years", "note": "AR 104(2): name, date and time, product, route, amount, duration, who gave and authorised it, and why. Recorded by midnight on the day.", "sql": "select given_local as given, product, kind, route, amount, duration, given_by, authorised_by, reason, recorded_local as recorded, record_standing as record from v_treatments where horse_id = $1 and given_at > local_now() - interval '2 years' order by given_at" }
+    ]
+  },
+  {
+    "name": "horse-report",
+    "title": "Horse report for owners",
+    "for_each": "select id, name from v_horses where status <> 'left' order by name",
+    "file": "name",
+    "sections": [
+      { "title": "Where things stand", "layout": "record", "sql": "select name, sex, age, status, premises_name as premises, since, next_race from v_horses where id = $1" },
+      { "title": "Owners", "sql": "select o.name, s.percent from shares s join owners o on o.id = s.owner_id where s.horse_id = $1 and s.from_on <= local_today() and (s.to_on is null or s.to_on >= local_today()) order by s.percent desc" },
+      { "title": "Recent work", "sql": "select on_date, kind, distance_m, time_text as time, note from trackwork where horse_id = $1 order by on_date desc limit 8" },
+      { "title": "Races", "sql": "select race_date, venue, race_no as race, race_name, distance_m, status, finish, dollars(prizemoney_cents) as prizemoney from races where horse_id = $1 and status <> 'scratched' order by race_date desc" }
     ]
   }
 ]

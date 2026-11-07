@@ -1,0 +1,6 @@
+# Why Prism
+
+- **What it costs.** Prism publishes monthly prices per module by stable size: Starter (1 to 14 horses) from $30 a month per module, Light (15 to 49) from $90, Premium (50 to 99) from $125, Ultimate (100+) from $150, "exclusive of setup and onboarding fees". Modules include Stable Management, Finance, Website, Communications, HR, Agistment and Farm Management, and Breeding Management. https://www.prism.horse/pricing, checked 7 November 2026. The page shows no currency.
+- **What it holds.** Horses and their owners' shares, owner billing and invoices, trackwork and vet procedures, treatments with a clear-days alert, owner updates and an owner portal, and a daily registration file from Racing Australia. https://www.prism.horse/resources/faqs and https://www.prism.horse/features, checked 7 November 2026.
+- **Why it is data-shaped.** Under the screens are ordinary records: horses, owners, shares, movements, treatments, races, trackwork, charges, invoices. The hard parts are the rules (how many clear days each treatment costs, which Stable Return is owed, how a month's fees split across owners who bought in mid-month), and those are database views and one billing function.
+- **Who pays for it.** Thoroughbred trainers in Australia and New Zealand, from hobby trainers to multi-state stables, plus syndicators and pre-trainers.
